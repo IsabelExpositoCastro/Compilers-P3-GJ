@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# src/CMakeLists.txt
+# src/parser_module/CMakeLists.txt
 # 
 # This file includes each module directory (sub-library) so they can be
 # built individually with their own CMakeLists.txt.
@@ -16,16 +16,7 @@
 # CMakeLists.txt files respectively.
 # -----------------------------------------------------------------------------
 
-
 # Add utils library from the top-level src folder
-add_library(utils STATIC utils_files.c)
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-message(STATUS "   - (${PROJECT_NAME}) Added utils library")
-
-# Add modules subdirectories
-add_subdirectory(Automata_Module)
-add_subdirectory(InArgs_Module)
-add_subdirectory(Language_Module)
-add_subdirectory(Parser_Module)
-add_subdirectory(Stack_Module)
-add_subdirectory(TokenReader_Module)
+add_library(Parser_Module parser.c)
+target_include_directories(Parser_Module PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(Parser_Module PRIVATE utils)

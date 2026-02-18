@@ -53,5 +53,5 @@ message(STATUS " - (${PROJECT_NAME}) Added tests/ directory")
 # This executable links together all module libraries.
 # (to have modular test for each module in parallel)
 add_executable(parser src/main.c)                    # ESTE ES EL NOMBRE DEL EJECUTABLE!!!!
-target_link_libraries(parser PRIVATE utils)          # AQUÍ VAN LOS NOMBRES DE LOS MÓDULOS
+target_link_libraries(parser PRIVATE utils Automata_Module InArgs_Module Language_Module Parser_Module Stack_Module TokenReader_Module)          # AQUÍ VAN LOS NOMBRES DE LOS MÓDULOS
 message(STATUS " - (${PROJECT_NAME}) Modules Template Main executable 'parser' linked with all modules")
