@@ -7,23 +7,23 @@
 #define AUTOMATA_H
 
 
-
+// ------------------- DATA STRUCTURES -------------------
 // Single ACTION cell tiene sentido: shift/reduce/accept/error
+// 
 typedef struct {
-    ActionType type;
-    int value; 
+    ActionType type;    // SHIFT, REDUCE, ACCEPT, ERROR
+    int value;          // {ACT_SHIFT, shiftear al estado x} - {ACT_REDUCE, production rule número y} 
 } Action;
+
+
 
 // Automaton = (Q, Σ, δ, q0, F) pero representado con tablas ACTION y GOTO
 typedef struct {
-    int num_states;
-    int start_state;
-
-    // ACTION[state][terminal] -> Action
-    Action** action_table;
-
-    // GOTO[state][nonterminal_index] -> next_state (or -1)
-    int** goto_table;
+    int num_states;             // TOTAL NUMBER OF STATES
+    int start_state;            // INTIAL STATE (q0)
+    
+    Action** action_table;      // ACTION [state][terminal] -> Action
+    int** goto_table;           // GOTO [state][nonterminal_index] -> next_state (or -1)
 
     // Mapping of nonterminal char to a column index for goto_table
     char* goto_nonterminals;

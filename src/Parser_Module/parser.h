@@ -12,7 +12,7 @@
 #define PARSER_H
 
 
-
+// ------------------- DATA STRUCTURES -------------------
 typedef struct {
     Automaton automaton;
     ParserStack stack;
@@ -20,8 +20,8 @@ typedef struct {
     Grammar grammar;
     TokenArray tokens;
 
-    int input_pos;
-    FILE* dbg_out; //  debug output file
+    int input_pos;  // 
+    FILE* dbg_out;  //  OutputtFile de toda la vida
 } SRAParser;
 
 #endif

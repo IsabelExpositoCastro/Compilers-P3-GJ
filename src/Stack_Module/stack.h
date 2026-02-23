@@ -2,9 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../types.h"
-#ifndef STACK_H
-#
 
+#ifndef STACK_H
+#define STACK_H
+
+
+
+
+// ------------------- DATA STRUCTURES -------------------
 typedef struct {
     SymbolKind kind; // terminal or nonterminal
     union {
@@ -12,8 +17,10 @@ typedef struct {
         char nonterm;
     } sym;
 
-    int state; // LR state associated after pushing this symbol
+    int state; // LR state associated after pushing this symbol 
 } StackItem;
+
+
 
 typedef struct {
     StackItem* data;

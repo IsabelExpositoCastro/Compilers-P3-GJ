@@ -7,45 +7,50 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-
+// ------------------- DEFINITIONS -------------------
 #define MAX_NAME_LEN     64
 #define MAX_RHS_LEN      16
 #define MAX_RULES        64
 #define MAX_TERMINALS    16
 #define MAX_NONTERMINALS 16
 
-// A symbol in RHS can be terminal or nonterminal
-typedef struct {
-    SymbolKind kind;
+
+
+
+// -------------------- DATA STRUCTS -------------------
+
+// HANLDLING THE CONTENT IN RHS OF THE PRODUCTION RULES
+typedef struct {            // A symbol in RHS can be terminal or nonterminal
+    SymbolKind kind;        // TERMINAL O NONTERMINAL
     union {
-        Terminal term;
-        char nonterm;
+        Terminal term;      // CASE_1: IT IS A TERMINAL
+        char nonterm;       // CASE_2: IT IS A NONTERMINAL (CHAR REPRESENTING THE NONTERMINAL)
     } val;
 } GrammarSymbol;
 
-// Production rule: lhs -> rhs[0..rhs_len-1]
-typedef struct {
-    char lhs;                      // ex 'e'
-    int rhs_len;                   // number of symbols in RHS
-    GrammarSymbol rhs[MAX_RHS_LEN];
+
+// PRODUCTION RULE
+typedef struct {                           
+    char lhs;                              // Left hand side (statement)
+    int rhs_len;                           // Length of the right hand side
+    GrammarSymbol rhs[MAX_RHS_LEN];        // ARRAY OF SYMBOLS IN RHS
 } ProductionRule;
 
-// Grammar = (V, Σ, P, S)
-typedef struct {
-    char name[MAX_NAME_LEN];
 
-    char start_symbol;
-
-    Terminal terminals[MAX_TERMINALS];
-    int num_terminals;
-
-    char nonterminals[MAX_NONTERMINALS];
-    int num_nonterminals;
-
-    ProductionRule rules[MAX_RULES];
-    int num_rules;
+// LANGUAGE
+typedef struct {                    
+    int num_rules;                          // TOTAL NUMBER OF PRODUCTION RULES                                
+    char start_symbol;                      // S
+    int num_terminals;                      // TOTAL NUMBER OF TERMINALS
+    int num_nonterminals;                   // TOTAL NUMBER OF NONTERMINALS
+    ProductionRule rules[MAX_RULES];        // PRODUCTION RULES
+    Terminal terminals[MAX_TERMINALS];      // ARRAY DE TERMNALS
+    char nonterminals[MAX_NONTERMINALS];    // ARRAY DE NONTERMINALS
 } Grammar;
 
+
+
+// ------------------- FUNCTIONS -------------------
 void printCasualLanguage();
 
 #endif

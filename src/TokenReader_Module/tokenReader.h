@@ -8,10 +8,15 @@
 
 #define MAX_LEXEME_LEN 64
 
+
+
+// ------------------- DATA STRUCTURES -------------------
 typedef struct {
     char lexeme[MAX_LEXEME_LEN];
     Terminal category;   // TOK_NUM, TOK_PLUS, ...
 } Token;
+
+
 
 typedef struct {
     Token* tokens;

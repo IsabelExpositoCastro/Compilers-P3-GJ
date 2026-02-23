@@ -1,0 +1,17 @@
+LANGUAGE
+s _ e
+e _ e + t
+e _ t
+t _ t * f
+t _ f
+f _ (e)
+f _ NUM 
++ * ( ) NUM         // TERMINALS
+s e t f             // NON-TERMINALS
+
+
+
+AUTOMATA
+22                  // TOTAL STATES
+0                   // START STATE
+1                   // END STATE - ACCEPTING STATE

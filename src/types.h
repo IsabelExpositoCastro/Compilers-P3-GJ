@@ -17,6 +17,8 @@ typedef enum {
     TOK_INVALID
 } Terminal;
 
+
+
 // ACTION types in the parsing table
 typedef enum {
     ACT_SHIFT = 0,
@@ -25,8 +27,10 @@ typedef enum {
     ACT_ERROR
 } ActionType;
 
-// Symbol kind stored in stack / grammar rhs
-typedef enum {
+
+
+// ENUMERACIÓN PARA DIFERENCIAR ENTRE TERMINALS Y NON TERMINALS
+typedef enum {                  // Symbol kind stored in stack / grammar rhs
     SYM_TERMINAL = 1,
     SYM_NONTERMINAL = 2
 } SymbolKind;
