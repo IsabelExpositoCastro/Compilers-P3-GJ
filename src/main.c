@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
     FILE* ifile = Open_InputFile(argc, argv);               // OPEN THE INPUT FILE (.cscn)              
     // FILE* ofile = Open_OutputFile(argc, argv);           // OPEN THE OUTPUT FILE (donde printearemos la tabla resultante)
     char* input_filename = get_input_filename(argc, argv);  // GETS THE InputFile NAME
+    generate_debug_output(input_filename);                  //Dummy function to generate an visual like output file
     
 
 

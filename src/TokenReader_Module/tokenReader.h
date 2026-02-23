@@ -1,6 +1,7 @@
 // ------------------- LIBRERÍAS -------------------
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../types.h"
 
 #ifndef TOKENREADER_H
@@ -29,3 +30,4 @@ typedef struct {
 
 // ------------------- FUNCIONES -------------------
 void printCasualTokenReader();
+void generate_debug_output(const char *input_filename);

@@ -1,0 +1,86 @@
+STEP 1:
+  INPUT_POS=0
+  LOOKAHEAD=NUM
+  OPERATION=shift
+  PREV_STATE=0
+  NEW_STATE=5
+  STACK=[0, NUM, 5]
+--------------------------------------------------
+STEP 2:
+  INPUT_POS=1
+  LOOKAHEAD=+
+  OPERATION=reduce
+  RULE=R7 (f -> NUM)
+  PREV_STATE=5
+  NEW_STATE=3
+  STACK=[0, f, 3]
+--------------------------------------------------
+STEP 3:
+  INPUT_POS=1
+  LOOKAHEAD=+
+  OPERATION=reduce
+  RULE=R5 (t -> f)
+  PREV_STATE=3
+  NEW_STATE=2
+  STACK=[0, t, 2]
+--------------------------------------------------
+STEP 4:
+  INPUT_POS=1
+  LOOKAHEAD=+
+  OPERATION=reduce
+  RULE=R3 (e -> t)
+  PREV_STATE=2
+  NEW_STATE=1
+  STACK=[0, e, 1]
+--------------------------------------------------
+STEP 5:
+  INPUT_POS=1
+  LOOKAHEAD=+
+  OPERATION=shift
+  PREV_STATE=1
+  NEW_STATE=6
+  STACK=[0, e, 1, +, 6]
+--------------------------------------------------
+STEP 6:
+  INPUT_POS=2
+  LOOKAHEAD=NUM
+  OPERATION=shift
+  PREV_STATE=6
+  NEW_STATE=5
+  STACK=[0, e, 1, +, 6, NUM, 5]
+--------------------------------------------------
+STEP 7:
+  INPUT_POS=2
+  LOOKAHEAD=$
+  OPERATION=reduce
+  RULE=R7 (f -> NUM)
+  PREV_STATE=5
+  NEW_STATE=3
+  STACK=[0, e, 1, +, 6, f, 3]
+--------------------------------------------------
+STEP 8:
+  INPUT_POS=2
+  LOOKAHEAD=$
+  OPERATION=reduce
+  RULE=R5 (t -> f)
+  PREV_STATE=3
+  NEW_STATE=7
+  STACK=[0, e, 1, +, 6, t, 7]
+--------------------------------------------------
+STEP 9:
+  INPUT_POS=2
+  LOOKAHEAD=$
+  OPERATION=reduce
+  RULE=R2 (e -> e + t)
+  PREV_STATE=7
+  NEW_STATE=1
+  STACK=[0, e, 1]
+--------------------------------------------------
+STEP 10:
+  INPUT_POS=2
+  LOOKAHEAD=$
+  OPERATION=accept
+  PREV_STATE=1
+  NEW_STATE=1
+  STACK=[0, e, 1]
+--------------------------------------------------

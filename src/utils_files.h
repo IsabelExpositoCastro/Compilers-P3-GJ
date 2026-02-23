@@ -17,6 +17,8 @@
 #define PATHDIRLOGS "./logs/" // For running yml
 
 // Function prototypes
+void split_path(const char *fullpath, char *path, char *filename, char *extension);
+void generate_timestamped_log_filename(const char* base_name, char* output, size_t maxlen);
 FILE* set_output_test_file(const char* filename);
 
 #endif // UTILS_FILES_H
