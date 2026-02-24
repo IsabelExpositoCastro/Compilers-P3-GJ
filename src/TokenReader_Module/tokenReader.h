@@ -34,8 +34,7 @@ void generate_debug_output(const char *input_filename);
 void write_step(FILE *f,
                 int input_pos,
                 const char *operation,
-                const char *rule,
                 int state,
                 const char *stack,
                 const char *remaining_input,
-                int new_state);
+                const char *action);
