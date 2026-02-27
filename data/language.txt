@@ -12,6 +12,36 @@ s e t f             // NON-TERMINALS
 
 
 AUTOMATA
-22                  // TOTAL STATES
+12                  // TOTAL STATES
 0                   // START STATE
 1                   // END STATE - ACCEPTING STATE
+
+ACTION
+STATE NUM + * ( ) $
+0 s5 - - s4 - -
+1 - s6 - - - acc
+2 - r3 s7 - r3 r3
+3 - r5 r5 - r5 r5
+4 s5 - - s4 - -
+5 - r7 r7 - r7 r7
+6 s5 - - s4 - -
+7 s5 - - s4 - -
+8 - s6 - - s11 -
+9 - r2 s7 - r2 r2
+10 - r4 r4 - r4 r4
+11 - r6 r6 - r6 r6
+
+GOTO
+STATE s e t f
+0 - 1 2 3
+1 - - - -
+2 - - - -
+3 - - - -
+4 - 8 2 3
+5 - - - -
+6 - - 9 3
+7 - - - 10
+8 - - - -
+9 - - - -
+10 - - - -
+11 - - - -

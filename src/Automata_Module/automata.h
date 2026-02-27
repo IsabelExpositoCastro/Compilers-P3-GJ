@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../types.h"
+#include "../Language_Module/language.h"
 
 #ifndef AUTOMATA_H
 #define AUTOMATA_H
@@ -34,4 +35,7 @@ typedef struct {
 
 
 // ------------------- FUNCIONES -------------------
-void printCasualAutomata();
+int automata_load_from_file(const char* language_path, Automaton* automaton);
+void automata_free(Automaton* automaton);
+Action automata_get_action(const Automaton* automaton, int state, Terminal terminal);
+int automata_get_goto(const Automaton* automaton, int state, char nonterminal);

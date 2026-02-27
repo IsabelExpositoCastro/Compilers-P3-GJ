@@ -51,7 +51,9 @@ typedef struct {
 
 
 // ------------------- FUNCTIONS -------------------
-void printCasualLanguage();
+int load_grammar_from_file(const char* filepath, Grammar* grammar);
+Terminal terminal_from_lexeme(const char* lexeme);
+const char* terminal_to_string(Terminal terminal);
 
 #endif
 

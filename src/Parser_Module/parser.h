@@ -10,23 +10,7 @@
 
 #ifndef PARSER_H
 #define PARSER_H
-
-
-// ------------------- DATA STRUCTURES -------------------
-typedef struct {
-    Automaton automaton;
-    ParserStack stack;
-
-    Grammar grammar;
-    TokenArray tokens;
-
-    int input_pos;  // 
-    FILE* dbg_out;  //  OutputtFile de toda la vida
-} SRAParser;
+// ------------------- FUNCIONES -------------------
+int run_shift_reduce_parser(const Grammar* grammar, const Automaton* automaton, const TokenStream* stream, FILE* dbg_out);
 
 #endif
-
-
-
-// ------------------- FUNCIONES -------------------
-void printCasualParser();

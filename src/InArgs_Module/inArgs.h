@@ -6,18 +6,15 @@
 #ifndef INARGS_H
 #define INARGS_H
 
-typedef struct {
-    const char* tokens_path;    // input .cscn
-    const char* language_path;  // language1.txt / language2.txt
-} Args;
-
 #endif
 
 
 // ------------------- FUNCIONES -------------------
-void printCasualInArgs();
+int validate_program_args(int argc, char* argv[]);
 FILE* Open_InputFile(int argc, char* argv[]);
 FILE* Open_OutputFile(int argc, char* argv[]);
-char* get_input_filename(int argc, char* argv[]);
+const char* get_input_filename(int argc, char* argv[]);
+const char* get_language_filename(int argc, char* argv[]);
+int build_output_filename(const char* input_filename, char* output_filename, size_t output_size);
 
 

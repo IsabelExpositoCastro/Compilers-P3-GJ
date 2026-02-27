@@ -33,4 +33,8 @@ typedef struct {
 
 
 // ------------------- FUNCIONES -------------------
-void printCasualStack();
+void stack_init(ParserStack* stack);
+void stack_free(ParserStack* stack);
+int stack_push(ParserStack* stack, StackItem item);
+int stack_pop(ParserStack* stack, StackItem* out_item);
+int stack_top_state(const ParserStack* stack);

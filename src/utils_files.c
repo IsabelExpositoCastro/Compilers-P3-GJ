@@ -1,6 +1,5 @@
 // ------------------ LIBRARIES ------------------
 #include <time.h>
-#include "./main.h"
 #include "./utils_files.h"
 
 
@@ -55,8 +54,6 @@ void generate_timestamped_log_filename(const char* base_name, char* output, size
              t->tm_min, 
              filename,
              extension);
-
-    if (ofile) fprintf(ofile, "Generated log filename (with time stamp): %s\n", output);
 
 }
 

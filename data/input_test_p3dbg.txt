@@ -1,0 +1,56 @@
+Expression 1
+EXPR=4*(5+8)
+-------------------------------------
+OP=SHIFT | STATE=0 | POS=0 | INPUT=4*(5+8)$ | STACK=[0] | ACTION=Shift from state 0 to state 5
+OP=REDUCE | STATE=5 | POS=1 | INPUT=*(5+8)$ | STACK=[0, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=1 | INPUT=*(5+8)$ | STACK=[0, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=SHIFT | STATE=2 | POS=1 | INPUT=*(5+8)$ | STACK=[0, t, 2] | ACTION=Shift from state 2 to state 7
+OP=SHIFT | STATE=7 | POS=2 | INPUT=(5+8)$ | STACK=[0, t, 2, *, 7] | ACTION=Shift from state 7 to state 4
+OP=SHIFT | STATE=4 | POS=3 | INPUT=5+8)$ | STACK=[0, t, 2, *, 7, (, 4] | ACTION=Shift from state 4 to state 5
+OP=REDUCE | STATE=5 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=REDUCE | STATE=2 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, t, 2] | ACTION=Reduce by R3 (e -> t)
+OP=SHIFT | STATE=8 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8] | ACTION=Shift from state 8 to state 6
+OP=SHIFT | STATE=6 | POS=5 | INPUT=8)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6] | ACTION=Shift from state 6 to state 5
+OP=REDUCE | STATE=5 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=REDUCE | STATE=9 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, t, 9] | ACTION=Reduce by R2 (e -> e + t)
+OP=SHIFT | STATE=8 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8] | ACTION=Shift from state 8 to state 11
+OP=REDUCE | STATE=11 | POS=7 | INPUT=$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, ), 11] | ACTION=Reduce by R6 (f -> ( e ))
+OP=REDUCE | STATE=10 | POS=7 | INPUT=$ | STACK=[0, t, 2, *, 7, f, 10] | ACTION=Reduce by R4 (t -> t * f)
+OP=REDUCE | STATE=2 | POS=7 | INPUT=$ | STACK=[0, t, 2] | ACTION=Reduce by R3 (e -> t)
+OP=ACCEPT | STATE=1 | POS=7 | INPUT=$ | STACK=[0, e, 1] | ACTION=Input accepted
+-------------------------------------
+
+Expression 2
+EXPR=1234567890
+-------------------------------------
+OP=SHIFT | STATE=0 | POS=0 | INPUT=1234567890$ | STACK=[0] | ACTION=Shift from state 0 to state 5
+OP=REDUCE | STATE=5 | POS=1 | INPUT=$ | STACK=[0, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=1 | INPUT=$ | STACK=[0, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=REDUCE | STATE=2 | POS=1 | INPUT=$ | STACK=[0, t, 2] | ACTION=Reduce by R3 (e -> t)
+OP=ACCEPT | STATE=1 | POS=1 | INPUT=$ | STACK=[0, e, 1] | ACTION=Input accepted
+-------------------------------------
+
+Expression 3
+EXPR=(7+3
+-------------------------------------
+OP=SHIFT | STATE=0 | POS=0 | INPUT=(7+3$ | STACK=[0] | ACTION=Shift from state 0 to state 4
+OP=SHIFT | STATE=4 | POS=1 | INPUT=7+3$ | STACK=[0, (, 4] | ACTION=Shift from state 4 to state 5
+OP=REDUCE | STATE=5 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=REDUCE | STATE=2 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, t, 2] | ACTION=Reduce by R3 (e -> t)
+OP=SHIFT | STATE=8 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, e, 8] | ACTION=Shift from state 8 to state 6
+OP=SHIFT | STATE=6 | POS=3 | INPUT=3$ | STACK=[0, (, 4, e, 8, +, 6] | ACTION=Shift from state 6 to state 5
+OP=REDUCE | STATE=5 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
+OP=REDUCE | STATE=3 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, f, 3] | ACTION=Reduce by R5 (t -> f)
+OP=REDUCE | STATE=9 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, t, 9] | ACTION=Reduce by R2 (e -> e + t)
+OP=ERROR | STATE=8 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8] | ACTION=No action for state=8 lookahead=$
+-------------------------------------
+
+Expression 4
+EXPR=compilers+6
+-------------------------------------
+OP=ERROR | STATE=0 | POS=0 | INPUT=compilers+6$ | STACK=[0] | ACTION=No action for state=0 lookahead=INVALID
+-------------------------------------
+

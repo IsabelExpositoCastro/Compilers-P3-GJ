@@ -25,12 +25,18 @@ typedef struct {
     int capacity;
 } TokenArray;
 
+typedef struct {
+    TokenArray* expressions;
+    int size;
+    int capacity;
+} TokenStream;
+
 #endif
 
 
 // ------------------- FUNCIONES -------------------
-void printCasualTokenReader();
-void generate_debug_output(const char *input_filename);
+int load_token_stream_from_file(const char* input_path, TokenStream* stream);
+void free_token_stream(TokenStream* stream);
 void write_step(FILE *f,
                 int input_pos,
                 const char *operation,
