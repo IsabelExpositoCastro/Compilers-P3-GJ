@@ -19,6 +19,33 @@ enum {
 #define MAX_AUT_STATES 128
 #define MAX_ACTION_COLS 16
 
+enum {
+    LINE_BUFFER_SIZE = 512,
+    TOKEN_ARRAY_SIZE = 64,
+    METADATA_LINES_COUNT = 3,
+    STATE_HEADER_MIN_COLS = 2,
+    SECTION_START_INDEX = 1,
+    TOKEN_LITERAL_LEN_SINGLE = 1,
+    START_STATE_DEFAULT = 0,
+    INVALID_VALUE = -1
+};
+
+static const char* COMMENT_PREFIX = "//";
+static const char* TOKEN_NUM = "NUM";
+static const char* TOKEN_PLUS = "+";
+static const char* TOKEN_STAR = "*";
+static const char* TOKEN_LPAREN = "(";
+static const char* TOKEN_RPAREN = ")";
+static const char* TOKEN_DOLLAR = "$";
+static const char* TOKEN_STATE = "STATE";
+static const char* TOKEN_DASH = "-";
+static const char* TOKEN_ACC = "acc";
+static const char* TOKEN_ACCEPT = "accept";
+static const char* SECTION_AUTOMATA = "AUTOMATA";
+static const char* SECTION_ACTION = "ACTION";
+static const char* SECTION_GOTO = "GOTO";
+static const char* TOKEN_SPLIT_DELIMS = " \t\r\n";
+
 typedef enum {
     MODE_NONE = 0,
     MODE_ACTION,
@@ -38,13 +65,13 @@ static int terminal_to_col(Terminal terminal) {
 }
 
 static int action_header_to_col(const char* token) {
-    if (strcmp(token, "NUM") == 0) return TERM_NUM;
-    if (strcmp(token, "+") == 0) return TERM_PLUS;
-    if (strcmp(token, "*") == 0) return TERM_STAR;
-    if (strcmp(token, "(") == 0) return TERM_LPAREN;
-    if (strcmp(token, ")") == 0) return TERM_RPAREN;
-    if (strcmp(token, "$") == 0) return TERM_DOLLAR;
-    return -1;
+    if (strcmp(token, TOKEN_NUM) == 0) return TERM_NUM;
+    if (strcmp(token, TOKEN_PLUS) == 0) return TERM_PLUS;
+    if (strcmp(token, TOKEN_STAR) == 0) return TERM_STAR;
+    if (strcmp(token, TOKEN_LPAREN) == 0) return TERM_LPAREN;
+    if (strcmp(token, TOKEN_RPAREN) == 0) return TERM_RPAREN;
+    if (strcmp(token, TOKEN_DOLLAR) == 0) return TERM_DOLLAR;
+    return INVALID_VALUE;
 }
 
 static int nonterminal_to_col(const Automaton* automaton, char nonterminal) {
@@ -54,13 +81,13 @@ static int nonterminal_to_col(const Automaton* automaton, char nonterminal) {
             return index;
         }
     }
-    return -1;
+    return INVALID_VALUE;
 }
 
 static int alloc_tables(Automaton* automaton, int states, int goto_cols) {
     int i;
     automaton->num_states = states;
-    automaton->start_state = 0;
+    automaton->start_state = START_STATE_DEFAULT;
     automaton->num_goto_nonterminals = goto_cols;
 
     automaton->action_table = (Action**)malloc(sizeof(Action*) * states);
@@ -81,17 +108,17 @@ static int alloc_tables(Automaton* automaton, int states, int goto_cols) {
 
         for (j = 0; j < TERM_COUNT; j++) {
             automaton->action_table[i][j].type = ACT_ERROR;
-            automaton->action_table[i][j].value = -1;
+            automaton->action_table[i][j].value = INVALID_VALUE;
         }
         for (j = 0; j < goto_cols; j++) {
-            automaton->goto_table[i][j] = -1;
+            automaton->goto_table[i][j] = INVALID_VALUE;
         }
     }
     return 1;
 }
 
 static void strip_comment(char* line) {
-    char* comment = strstr(line, "//");
+    char* comment = strstr(line, COMMENT_PREFIX);
     if (comment != NULL) {
         *comment = '\0';
     }
@@ -117,15 +144,15 @@ static int is_empty_line(const char* line) {
 }
 
 static int parse_action_cell(const char* token, Action* out_action) {
-    if (strcmp(token, "-") == 0) {
+    if (strcmp(token, TOKEN_DASH) == 0) {
         out_action->type = ACT_ERROR;
-        out_action->value = -1;
+        out_action->value = INVALID_VALUE;
         return 1;
     }
 
-    if (strcmp(token, "acc") == 0 || strcmp(token, "accept") == 0) {
+    if (strcmp(token, TOKEN_ACC) == 0 || strcmp(token, TOKEN_ACCEPT) == 0) {
         out_action->type = ACT_ACCEPT;
-        out_action->value = 0;
+        out_action->value = START_STATE_DEFAULT;
         return 1;
     }
 
@@ -150,19 +177,19 @@ static int parse_action_cell(const char* token, Action* out_action) {
 // --------------- FUNCIONES ---------------
 int automata_load_from_file(const char* language_path, Automaton* automaton) {
     FILE* file;
-    char line[512];
+    char line[LINE_BUFFER_SIZE];
     ParseMode mode = MODE_NONE;
     int automata_section_found = 0;
-    int num_states = -1;
-    int start_state = 0;
-    int metadata_lines_read = 0;
+    int num_states = INVALID_VALUE;
+    int start_state = START_STATE_DEFAULT;
+    int metadata_lines_read = START_STATE_DEFAULT;
 
     int action_header_ready = 0;
     int goto_header_ready = 0;
     int action_col_map[MAX_ACTION_COLS];
-    int action_cols = 0;
+    int action_cols = START_STATE_DEFAULT;
     char goto_columns[MAX_NONTERMINALS];
-    int goto_cols = 0;
+    int goto_cols = START_STATE_DEFAULT;
 
     Action action_tmp[MAX_AUT_STATES][TERM_COUNT];
     int goto_tmp[MAX_AUT_STATES][MAX_NONTERMINALS];
@@ -176,10 +203,10 @@ int automata_load_from_file(const char* language_path, Automaton* automaton) {
     for (i = 0; i < MAX_AUT_STATES; i++) {
         for (j = 0; j < TERM_COUNT; j++) {
             action_tmp[i][j].type = ACT_ERROR;
-            action_tmp[i][j].value = -1;
+            action_tmp[i][j].value = INVALID_VALUE;
         }
         for (j = 0; j < MAX_NONTERMINALS; j++) {
-            goto_tmp[i][j] = -1;
+            goto_tmp[i][j] = INVALID_VALUE;
         }
     }
 
@@ -189,8 +216,8 @@ int automata_load_from_file(const char* language_path, Automaton* automaton) {
     }
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        char* tokens[64];
-        int token_count = 0;
+        char* tokens[TOKEN_ARRAY_SIZE];
+        int token_count = START_STATE_DEFAULT;
         char* tok;
 
         strip_comment(line);
@@ -200,85 +227,85 @@ int automata_load_from_file(const char* language_path, Automaton* automaton) {
         }
 
         if (!automata_section_found) {
-            if (strcmp(line, "AUTOMATA") == 0) {
+            if (strcmp(line, SECTION_AUTOMATA) == 0) {
                 automata_section_found = 1;
             }
             continue;
         }
 
-        if (metadata_lines_read < 3) {
+        if (metadata_lines_read < METADATA_LINES_COUNT) {
             int value = atoi(line);
-            if (metadata_lines_read == 0) num_states = value;
-            if (metadata_lines_read == 1) start_state = value;
+            if (metadata_lines_read == START_STATE_DEFAULT) num_states = value;
+            if (metadata_lines_read == SECTION_START_INDEX) start_state = value;
             metadata_lines_read++;
             continue;
         }
 
-        if (strcmp(line, "ACTION") == 0) {
+        if (strcmp(line, SECTION_ACTION) == 0) {
             mode = MODE_ACTION;
-            action_header_ready = 0;
+            action_header_ready = START_STATE_DEFAULT;
             continue;
         }
-        if (strcmp(line, "GOTO") == 0) {
+        if (strcmp(line, SECTION_GOTO) == 0) {
             mode = MODE_GOTO;
-            goto_header_ready = 0;
+            goto_header_ready = START_STATE_DEFAULT;
             continue;
         }
 
-        tok = strtok(line, " \t\r\n");
-        while (tok != NULL && token_count < 64) {
+        tok = strtok(line, TOKEN_SPLIT_DELIMS);
+        while (tok != NULL && token_count < TOKEN_ARRAY_SIZE) {
             tokens[token_count++] = tok;
-            tok = strtok(NULL, " \t\r\n");
+            tok = strtok(NULL, TOKEN_SPLIT_DELIMS);
         }
-        if (token_count == 0) continue;
+        if (token_count == START_STATE_DEFAULT) continue;
 
         if (mode == MODE_ACTION && !action_header_ready) {
             int k;
-            if (token_count < 2 || strcmp(tokens[0], "STATE") != 0) {
+            if (token_count < STATE_HEADER_MIN_COLS || strcmp(tokens[0], TOKEN_STATE) != 0) {
                 fclose(file);
                 return 0;
             }
-            action_cols = 0;
-            for (k = 1; k < token_count && action_cols < MAX_ACTION_COLS; k++) {
+            action_cols = START_STATE_DEFAULT;
+            for (k = SECTION_START_INDEX; k < token_count && action_cols < MAX_ACTION_COLS; k++) {
                 int col = action_header_to_col(tokens[k]);
-                if (col >= 0) {
+                if (col >= START_STATE_DEFAULT) {
                     action_col_map[action_cols++] = col;
                 }
             }
-            action_header_ready = (action_cols > 0);
+            action_header_ready = (action_cols > START_STATE_DEFAULT);
             continue;
         }
 
         if (mode == MODE_GOTO && !goto_header_ready) {
             int k;
-            if (token_count < 2 || strcmp(tokens[0], "STATE") != 0) {
+            if (token_count < STATE_HEADER_MIN_COLS || strcmp(tokens[0], TOKEN_STATE) != 0) {
                 fclose(file);
                 return 0;
             }
-            goto_cols = 0;
-            for (k = 1; k < token_count && goto_cols < MAX_NONTERMINALS; k++) {
-                if (strlen(tokens[k]) == 1 && isalpha((unsigned char)tokens[k][0])) {
+            goto_cols = START_STATE_DEFAULT;
+            for (k = SECTION_START_INDEX; k < token_count && goto_cols < MAX_NONTERMINALS; k++) {
+                if (strlen(tokens[k]) == TOKEN_LITERAL_LEN_SINGLE && isalpha((unsigned char)tokens[k][0])) {
                     goto_columns[goto_cols++] = tokens[k][0];
                 }
             }
-            goto_header_ready = (goto_cols > 0);
+            goto_header_ready = (goto_cols > START_STATE_DEFAULT);
             continue;
         }
 
         if (mode == MODE_ACTION && action_header_ready) {
             int state = atoi(tokens[0]);
             int k;
-            if (state < 0 || state >= MAX_AUT_STATES) {
+            if (state < START_STATE_DEFAULT || state >= MAX_AUT_STATES) {
                 fclose(file);
                 return 0;
             }
-            for (k = 1; k < token_count && (k - 1) < action_cols; k++) {
+            for (k = SECTION_START_INDEX; k < token_count && (k - SECTION_START_INDEX) < action_cols; k++) {
                 Action parsed;
                 if (!parse_action_cell(tokens[k], &parsed)) {
                     fclose(file);
                     return 0;
                 }
-                action_tmp[state][action_col_map[k - 1]] = parsed;
+                action_tmp[state][action_col_map[k - SECTION_START_INDEX]] = parsed;
             }
             continue;
         }
@@ -286,15 +313,15 @@ int automata_load_from_file(const char* language_path, Automaton* automaton) {
         if (mode == MODE_GOTO && goto_header_ready) {
             int state = atoi(tokens[0]);
             int k;
-            if (state < 0 || state >= MAX_AUT_STATES) {
+            if (state < START_STATE_DEFAULT || state >= MAX_AUT_STATES) {
                 fclose(file);
                 return 0;
             }
-            for (k = 1; k < token_count && (k - 1) < goto_cols; k++) {
-                if (strcmp(tokens[k], "-") == 0) {
-                    goto_tmp[state][k - 1] = -1;
+            for (k = SECTION_START_INDEX; k < token_count && (k - SECTION_START_INDEX) < goto_cols; k++) {
+                if (strcmp(tokens[k], TOKEN_DASH) == 0) {
+                    goto_tmp[state][k - SECTION_START_INDEX] = INVALID_VALUE;
                 } else {
-                    goto_tmp[state][k - 1] = atoi(tokens[k]);
+                    goto_tmp[state][k - SECTION_START_INDEX] = atoi(tokens[k]);
                 }
             }
         }
@@ -302,7 +329,7 @@ int automata_load_from_file(const char* language_path, Automaton* automaton) {
 
     fclose(file);
 
-    if (!automata_section_found || num_states <= 0 || num_states > MAX_AUT_STATES || goto_cols <= 0) {
+    if (!automata_section_found || num_states <= START_STATE_DEFAULT || num_states > MAX_AUT_STATES || goto_cols <= START_STATE_DEFAULT) {
         return 0;
     }
 
@@ -351,14 +378,14 @@ void automata_free(Automaton* automaton) {
 }
 
 Action automata_get_action(const Automaton* automaton, int state, Terminal terminal) {
-    Action error_action = {ACT_ERROR, -1};
+    Action error_action = {ACT_ERROR, INVALID_VALUE};
     int term_col;
-    if (automaton == NULL || state < 0 || state >= automaton->num_states) {
+    if (automaton == NULL || state < START_STATE_DEFAULT || state >= automaton->num_states) {
         return error_action;
     }
 
     term_col = terminal_to_col(terminal);
-    if (term_col < 0) {
+    if (term_col < START_STATE_DEFAULT) {
         return error_action;
     }
 
@@ -367,13 +394,13 @@ Action automata_get_action(const Automaton* automaton, int state, Terminal termi
 
 int automata_get_goto(const Automaton* automaton, int state, char nonterminal) {
     int col;
-    if (automaton == NULL || state < 0 || state >= automaton->num_states) {
-        return -1;
+    if (automaton == NULL || state < START_STATE_DEFAULT || state >= automaton->num_states) {
+        return INVALID_VALUE;
     }
 
     col = nonterminal_to_col(automaton, nonterminal);
-    if (col < 0) {
-        return -1;
+    if (col < START_STATE_DEFAULT) {
+        return INVALID_VALUE;
     }
 
     return automaton->goto_table[state][col];

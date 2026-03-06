@@ -1,6 +1,11 @@
 // ----------------- LIBRERÍAS -----------------
 #include "stack.h"
 
+enum {
+    INITIAL_STACK_CAPACITY = 16,
+    STACK_GROWTH_FACTOR = 2
+};
+
 
 
 
@@ -8,7 +13,7 @@
 void stack_init(ParserStack* stack) {
     if (stack == NULL) return;
     stack->size = 0;
-    stack->capacity = 16;
+    stack->capacity = INITIAL_STACK_CAPACITY;
     stack->data = (StackItem*)malloc(sizeof(StackItem) * stack->capacity);
 }
 
@@ -26,7 +31,7 @@ int stack_push(ParserStack* stack, StackItem item) {
     if (stack == NULL || stack->data == NULL) return 0;
 
     if (stack->size >= stack->capacity) {
-        stack->capacity *= 2;
+        stack->capacity *= STACK_GROWTH_FACTOR;
         resized_data = (StackItem*)realloc(stack->data, sizeof(StackItem) * stack->capacity);
         if (resized_data == NULL) {
             return 0;

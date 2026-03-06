@@ -2,6 +2,28 @@
 #include "tokenReader.h"
 #include <ctype.h>
 
+enum {
+    INITIAL_TOKEN_ARRAY_CAPACITY = 8,
+    INITIAL_STREAM_CAPACITY = 4,
+    DYNAMIC_GROWTH_FACTOR = 2,
+    LINE_BUFFER_SIZE = 512,
+    TUPLE_BUFFER_SIZE = 128,
+    FIELD_BUFFER_SIZE = 64
+};
+
+static const char* INPUT_OPEN_MODE = "r";
+static const char* CATEGORY_NUMBER = "CAT_NUMBER";
+static const char* CATEGORY_OPERATOR = "CAT_OPERATOR";
+static const char* CATEGORY_SPECIALCHAR = "CAT_SPECIALCHAR";
+static const char* LEXEME_PLUS = "+";
+static const char* LEXEME_STAR = "*";
+static const char* LEXEME_LPAREN = "(";
+static const char* LEXEME_RPAREN = ")";
+static const char TUPLE_START = '<';
+static const char TUPLE_END = '>';
+static const char TUPLE_SEPARATOR = ',';
+static const char* STEP_ROW_FORMAT = "%s | %d | %d | %s | %s | %s\n";
+
 
 
 // ----------------- HELPERS -----------------
@@ -20,24 +42,29 @@ static void trim_text(char* text) {
     }
 }
 
+
+
+
 static Terminal category_to_terminal(const char* lexeme, const char* category) {
-    if (strcmp(category, "CAT_NUMBER") == 0) {
+    if (strcmp(category, CATEGORY_NUMBER) == 0) {
         return TOK_NUM;
     }
-    if (strcmp(category, "CAT_OPERATOR") == 0) {
-        if (strcmp(lexeme, "+") == 0) return TOK_PLUS;
-        if (strcmp(lexeme, "*") == 0) return TOK_STAR;
+    if (strcmp(category, CATEGORY_OPERATOR) == 0) {
+        if (strcmp(lexeme, LEXEME_PLUS) == 0) return TOK_PLUS;
+        if (strcmp(lexeme, LEXEME_STAR) == 0) return TOK_STAR;
     }
-    if (strcmp(category, "CAT_SPECIALCHAR") == 0) {
-        if (strcmp(lexeme, "(") == 0) return TOK_LPAREN;
-        if (strcmp(lexeme, ")") == 0) return TOK_RPAREN;
+    if (strcmp(category, CATEGORY_SPECIALCHAR) == 0) {
+        if (strcmp(lexeme, LEXEME_LPAREN) == 0) return TOK_LPAREN;
+        if (strcmp(lexeme, LEXEME_RPAREN) == 0) return TOK_RPAREN;
     }
     return TOK_INVALID;
 }
 
+
+
 static void token_array_init(TokenArray* array) {
     array->size = 0;
-    array->capacity = 8;
+    array->capacity = INITIAL_TOKEN_ARRAY_CAPACITY;
     array->tokens = (Token*)malloc(sizeof(Token) * array->capacity);
 }
 
@@ -51,7 +78,7 @@ static void token_array_free(TokenArray* array) {
 static int token_array_push(TokenArray* array, Token token) {
     Token* resized = NULL;
     if (array->size >= array->capacity) {
-        array->capacity *= 2;
+        array->capacity *= DYNAMIC_GROWTH_FACTOR;
         resized = (Token*)realloc(array->tokens, sizeof(Token) * array->capacity);
         if (resized == NULL) return 0;
         array->tokens = resized;
@@ -62,14 +89,14 @@ static int token_array_push(TokenArray* array, Token token) {
 
 static void token_stream_init(TokenStream* stream) {
     stream->size = 0;
-    stream->capacity = 4;
+    stream->capacity = INITIAL_STREAM_CAPACITY;
     stream->expressions = (TokenArray*)malloc(sizeof(TokenArray) * stream->capacity);
 }
 
 static int token_stream_push(TokenStream* stream, TokenArray expression) {
     TokenArray* resized = NULL;
     if (stream->size >= stream->capacity) {
-        stream->capacity *= 2;
+        stream->capacity *= DYNAMIC_GROWTH_FACTOR;
         resized = (TokenArray*)realloc(stream->expressions, sizeof(TokenArray) * stream->capacity);
         if (resized == NULL) return 0;
         stream->expressions = resized;
@@ -82,11 +109,11 @@ static int parse_expression_line(const char* line, TokenArray* out_expression) {
     const char* cursor = line;
     token_array_init(out_expression);
 
-    while ((cursor = strchr(cursor, '<')) != NULL) {
-        const char* end = strchr(cursor, '>');
-        char tuple[128];
-        char lexeme[64];
-        char category[64];
+    while ((cursor = strchr(cursor, TUPLE_START)) != NULL) {
+        const char* end = strchr(cursor, TUPLE_END);
+        char tuple[TUPLE_BUFFER_SIZE];
+        char lexeme[FIELD_BUFFER_SIZE];
+        char category[FIELD_BUFFER_SIZE];
         char* comma = NULL;
         Token token;
 
@@ -98,7 +125,7 @@ static int parse_expression_line(const char* line, TokenArray* out_expression) {
         strncpy(tuple, cursor + 1, (size_t)(end - cursor - 1));
         tuple[end - cursor - 1] = '\0';
 
-        comma = strchr(tuple, ',');
+        comma = strchr(tuple, TUPLE_SEPARATOR);
         if (comma == NULL) {
             token_array_free(out_expression);
             return 0;
@@ -130,7 +157,7 @@ static int parse_expression_line(const char* line, TokenArray* out_expression) {
 // ----------------- FUNCIONES -----------------
 int load_token_stream_from_file(const char* input_path, TokenStream* stream) {
     FILE* file = NULL;
-    char line[512];
+    char line[LINE_BUFFER_SIZE];
 
     if (input_path == NULL || stream == NULL) {
         return 0;
@@ -138,14 +165,14 @@ int load_token_stream_from_file(const char* input_path, TokenStream* stream) {
 
     token_stream_init(stream);
 
-    file = fopen(input_path, "r");
+    file = fopen(input_path, INPUT_OPEN_MODE);
     if (file == NULL) {
         return 0;
     }
 
     while (fgets(line, sizeof(line), file) != NULL) {
         TokenArray expression;
-        if (strchr(line, '<') == NULL) {
+        if (strchr(line, TUPLE_START) == NULL) {
             continue;
         }
 
@@ -186,7 +213,7 @@ void write_step(FILE *f,
                 const char *action)
 {
     fprintf(f,
-            "OP=%s | STATE=%d | POS=%d | INPUT=%s | STACK=%s | ACTION=%s\n",
+            STEP_ROW_FORMAT,
             operation,
             state,
             input_pos,

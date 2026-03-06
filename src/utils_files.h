@@ -6,6 +6,9 @@
 #include <stdlib.h>     // To set env for time zone
 #include <string.h>     // For filename manipulation    
 #include <time.h>       // For time-stamp of output logs filenames
+#include "./Language_Module/language.h"
+#include "./Automata_Module/automata.h"
+#include "./TokenReader_Module/tokenReader.h"
 
 
 // ---------------- GLOBAL DEFINES ------------------
@@ -20,5 +23,17 @@
 void split_path(const char *fullpath, char *path, char *filename, char *extension);
 void generate_timestamped_log_filename(const char* base_name, char* output, size_t maxlen);
 FILE* set_output_test_file(const char* filename);
+void print_run_context(const char* input_filename, const char* language_path);
+void print_grammar_info(const Grammar* grammar);
+void load_pipeline(const char* language_path,
+				   const char* input_filename,
+				   Grammar* grammar,
+				   TokenStream* stream,
+				   Automaton* automaton);
+void execute_pipeline(const Grammar* grammar,
+					  const Automaton* automaton,
+					  const TokenStream* stream,
+					  FILE* output_file);
+void release_pipeline(TokenStream* stream, Automaton* automaton, FILE* output_file);
 
 #endif // UTILS_FILES_H

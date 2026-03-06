@@ -2,11 +2,30 @@
 #include "language.h"
 #include <ctype.h>
 
+enum {
+    LINE_BUFFER_SIZE = 256,
+    TOKEN_LITERAL_LEN_NUM = 3
+};
+
+static const char* COMMENT_PREFIX = "//";
+static const char* TOKEN_NUM = "NUM";
+static const char* TOKEN_PLUS = "+";
+static const char* TOKEN_STAR = "*";
+static const char* TOKEN_LPAREN = "(";
+static const char* TOKEN_RPAREN = ")";
+static const char* TOKEN_DOLLAR = "$";
+static const char* TOKEN_INVALID = "INVALID";
+static const char* SECTION_LANGUAGE = "LANGUAGE";
+static const char* SECTION_AUTOMATA = "AUTOMATA";
+static const char* RULE_ARROW = "_";
+static const char* RULE_ARROW_WITH_SPACES = " _ ";
+static const char* TOKEN_SPLIT_DELIMS = " \t\r\n";
+
 
 
 // --------------- HELPERS ---------------
 static void strip_comment(char* line) {
-    char* comment_start = strstr(line, "//");
+    char* comment_start = strstr(line, COMMENT_PREFIX);
     if (comment_start != NULL) {
         *comment_start = '\0';
     }
@@ -53,16 +72,16 @@ static int add_rhs_nonterminal(ProductionRule* rule, char nonterminal) {
 static int parse_rhs_token(ProductionRule* rule, const char* token) {
     int index = 0;
 
-    if (strcmp(token, "NUM") == 0) {
+    if (strcmp(token, TOKEN_NUM) == 0) {
         return add_rhs_terminal(rule, TOK_NUM);
     }
 
     while (token[index] != '\0') {
-        if (strncmp(&token[index], "NUM", 3) == 0) {
+        if (strncmp(&token[index], TOKEN_NUM, TOKEN_LITERAL_LEN_NUM) == 0) {
             if (!add_rhs_terminal(rule, TOK_NUM)) {
                 return 0;
             }
-            index += 3;
+            index += TOKEN_LITERAL_LEN_NUM;
             continue;
         }
 
@@ -118,11 +137,11 @@ static int parse_rhs_token(ProductionRule* rule, const char* token) {
 }
 
 static int parse_rule_line(char* line, Grammar* grammar) {
-    char* lhs_token = strtok(line, " \t\r\n");
-    char* arrow_token = strtok(NULL, " \t\r\n");
+    char* lhs_token = strtok(line, TOKEN_SPLIT_DELIMS);
+    char* arrow_token = strtok(NULL, TOKEN_SPLIT_DELIMS);
     char* rhs_token = NULL;
 
-    if (lhs_token == NULL || arrow_token == NULL || strcmp(arrow_token, "_") != 0) {
+    if (lhs_token == NULL || arrow_token == NULL || strcmp(arrow_token, RULE_ARROW) != 0) {
         return 0;
     }
 
@@ -134,12 +153,12 @@ static int parse_rule_line(char* line, Grammar* grammar) {
     rule->lhs = lhs_token[0];
     rule->rhs_len = 0;
 
-    rhs_token = strtok(NULL, " \t\r\n");
+    rhs_token = strtok(NULL, TOKEN_SPLIT_DELIMS);
     while (rhs_token != NULL) {
         if (!parse_rhs_token(rule, rhs_token)) {
             return 0;
         }
-        rhs_token = strtok(NULL, " \t\r\n");
+        rhs_token = strtok(NULL, TOKEN_SPLIT_DELIMS);
     }
 
     if (rule->rhs_len == 0) {
@@ -154,25 +173,25 @@ static int parse_rule_line(char* line, Grammar* grammar) {
 }
 
 static void parse_terminal_line(char* line, Grammar* grammar) {
-    char* token = strtok(line, " \t\r\n");
+    char* token = strtok(line, TOKEN_SPLIT_DELIMS);
 
     while (token != NULL && grammar->num_terminals < MAX_TERMINALS) {
         Terminal t = terminal_from_lexeme(token);
         if (t != TOK_INVALID) {
             grammar->terminals[grammar->num_terminals++] = t;
         }
-        token = strtok(NULL, " \t\r\n");
+        token = strtok(NULL, TOKEN_SPLIT_DELIMS);
     }
 }
 
 static void parse_nonterminal_line(char* line, Grammar* grammar) {
-    char* token = strtok(line, " \t\r\n");
+    char* token = strtok(line, TOKEN_SPLIT_DELIMS);
 
     while (token != NULL && grammar->num_nonterminals < MAX_NONTERMINALS) {
         if (isalpha((unsigned char)token[0])) {
             grammar->nonterminals[grammar->num_nonterminals++] = token[0];
         }
-        token = strtok(NULL, " \t\r\n");
+        token = strtok(NULL, TOKEN_SPLIT_DELIMS);
     }
 }
 
@@ -180,30 +199,30 @@ static void parse_nonterminal_line(char* line, Grammar* grammar) {
 
 // --------------- FUNCIONES ---------------
 Terminal terminal_from_lexeme(const char* lexeme) {
-    if (strcmp(lexeme, "NUM") == 0) return TOK_NUM;
-    if (strcmp(lexeme, "+") == 0) return TOK_PLUS;
-    if (strcmp(lexeme, "*") == 0) return TOK_STAR;
-    if (strcmp(lexeme, "(") == 0) return TOK_LPAREN;
-    if (strcmp(lexeme, ")") == 0) return TOK_RPAREN;
-    if (strcmp(lexeme, "$") == 0) return TOK_DOLLAR;
+    if (strcmp(lexeme, TOKEN_NUM) == 0) return TOK_NUM;
+    if (strcmp(lexeme, TOKEN_PLUS) == 0) return TOK_PLUS;
+    if (strcmp(lexeme, TOKEN_STAR) == 0) return TOK_STAR;
+    if (strcmp(lexeme, TOKEN_LPAREN) == 0) return TOK_LPAREN;
+    if (strcmp(lexeme, TOKEN_RPAREN) == 0) return TOK_RPAREN;
+    if (strcmp(lexeme, TOKEN_DOLLAR) == 0) return TOK_DOLLAR;
     return TOK_INVALID;
 }
 
 const char* terminal_to_string(Terminal terminal) {
     switch (terminal) {
-        case TOK_NUM: return "NUM";
-        case TOK_PLUS: return "+";
-        case TOK_STAR: return "*";
-        case TOK_LPAREN: return "(";
-        case TOK_RPAREN: return ")";
-        case TOK_DOLLAR: return "$";
-        default: return "INVALID";
+        case TOK_NUM: return TOKEN_NUM;
+        case TOK_PLUS: return TOKEN_PLUS;
+        case TOK_STAR: return TOKEN_STAR;
+        case TOK_LPAREN: return TOKEN_LPAREN;
+        case TOK_RPAREN: return TOKEN_RPAREN;
+        case TOK_DOLLAR: return TOKEN_DOLLAR;
+        default: return TOKEN_INVALID;
     }
 }
 
 int load_grammar_from_file(const char* filepath, Grammar* grammar) {
     FILE* file = NULL;
-    char line[256];
+    char line[LINE_BUFFER_SIZE];
     int language_section_found = 0;
 
     if (filepath == NULL || grammar == NULL) {
@@ -226,18 +245,18 @@ int load_grammar_from_file(const char* filepath, Grammar* grammar) {
         }
 
         if (!language_section_found) {
-            if (strcmp(line, "LANGUAGE") == 0) {
+            if (strcmp(line, SECTION_LANGUAGE) == 0) {
                 language_section_found = 1;
             }
             continue;
         }
 
-        if (strcmp(line, "AUTOMATA") == 0) {
+        if (strcmp(line, SECTION_AUTOMATA) == 0) {
             break;
         }
 
-        if (strstr(line, " _ ") != NULL || strchr(line, '_') != NULL) {
-            char rule_line[256];
+        if (strstr(line, RULE_ARROW_WITH_SPACES) != NULL || strchr(line, RULE_ARROW[0]) != NULL) {
+            char rule_line[LINE_BUFFER_SIZE];
             strcpy(rule_line, line);
             if (!parse_rule_line(rule_line, grammar)) {
                 fclose(file);
@@ -247,14 +266,14 @@ int load_grammar_from_file(const char* filepath, Grammar* grammar) {
         }
 
         if (grammar->num_terminals == 0) {
-            char terminals_line[256];
+            char terminals_line[LINE_BUFFER_SIZE];
             strcpy(terminals_line, line);
             parse_terminal_line(terminals_line, grammar);
             continue;
         }
 
         if (grammar->num_nonterminals == 0) {
-            char nonterminals_line[256];
+            char nonterminals_line[LINE_BUFFER_SIZE];
             strcpy(nonterminals_line, line);
             parse_nonterminal_line(nonterminals_line, grammar);
             continue;

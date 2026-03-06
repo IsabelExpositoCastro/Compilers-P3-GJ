@@ -115,25 +115,41 @@ Each expression block includes:
 - `EXPR=<full_expression_reconstructed>`
 - One-line step traces in the format:
 
-`OP=<SHIFT|REDUCE|ACCEPT|ERROR> | STATE=<state> | POS=<input_pos> | INPUT=<remaining_input$> | STACK=<stack_content> | ACTION=<human_readable_action>`
+`<OP> | <STATE> | <POS> | <INPUT$> | <STACK> | <ACTION_TEXT>`
+
+Where:
+
+- `OP` is one of `S`, `R`, `A`, `E`
+- `ACTION_TEXT` includes detailed stack transitions:
+  - `Shift from state X to state Y | PUSH [sym, state]`
+  - `Reduce by Rn (...) | POP {...} | PUSH [lhs, state] | GOTO [from, lhs]=to`
+
+Example:
+
+`R | 5 | 2 | +3)*5$ | [0, (, 4, NUM, 5] | Reduce by R7 (f -> NUM) | POP {[NUM, 5]} | PUSH [f, 3] | GOTO [4, f]=3`
 
 ## 4) Language specification format
 
 A language file must include these sections:
 
 1. `LANGUAGE`
-2. Grammar rules (using `_` as arrow)
-3. Terminals line
-4. Non-terminals line
-5. `AUTOMATA`
-6. Metadata: total states, start state, accept state
-7. `ACTION` table
-8. `GOTO` table
+2. Terminals line
+3. Non-terminals line
+4. `RULES`
+5. Grammar rules (using `_` as arrow)
+6. `AUTOMATA`
+7. Metadata: total states, start state, accept state
+8. `ACTION` table
+9. `GOTO` table
 
 ### Minimal structure example
 
 ```txt
 LANGUAGE
+ + * ( ) NUM
+ s e t f
+
+RULES
 s _ e
 e _ e + t
 e _ t
@@ -141,11 +157,9 @@ t _ t * f
 t _ f
 f _ (e)
 f _ NUM
-+ * ( ) NUM
-s e t f
 
 AUTOMATA
-12
+22
 0
 1
 
@@ -158,10 +172,13 @@ STATE s e t f
 ...
 ```
 
+Note: the current `load_grammar_from_file` implementation is tolerant and can still parse legacy layouts as long as terminals, non-terminals, and rules are present before `AUTOMATA`.
+
 ## 5) Supported language files in this repo
 
-- `data/language.txt` (main grammar from P3 handout)
-- `data/language2.txt` (alternate grammar format requested in handout context)
+- `data/language.txt` (main grammar + 22-state automaton)
+- `data/language_complete.txt` (same grammar/automaton in a separate complete file)
+- `data/language2.txt` (alternate grammar used in previous tests)
 
 ## 6) Main code modules
 
@@ -179,6 +196,8 @@ From `build/`:
 
 - Main language:
   - `./parser.exe ../data/language.txt ../data/input_test.cscn`
+- Complete language file:
+  - `./parser.exe ../data/language_complete.txt ../data/input_test.cscn`
 - Alternate language:
   - `./parser.exe ../data/language2.txt ../data/input_lang2_valid.cscn`
 

@@ -1,56 +1,73 @@
+SHIFT --> S
+REDUCE --> R
+ACCEPT --> A
+ERROR --> E
+OPERATION | STATE | POSITION | INPUT | STACK | ACTION
+
 Expression 1
-EXPR=4*(5+8)
+EXPR=(4+3)*5
 -------------------------------------
-OP=SHIFT | STATE=0 | POS=0 | INPUT=4*(5+8)$ | STACK=[0] | ACTION=Shift from state 0 to state 5
-OP=REDUCE | STATE=5 | POS=1 | INPUT=*(5+8)$ | STACK=[0, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=1 | INPUT=*(5+8)$ | STACK=[0, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=SHIFT | STATE=2 | POS=1 | INPUT=*(5+8)$ | STACK=[0, t, 2] | ACTION=Shift from state 2 to state 7
-OP=SHIFT | STATE=7 | POS=2 | INPUT=(5+8)$ | STACK=[0, t, 2, *, 7] | ACTION=Shift from state 7 to state 4
-OP=SHIFT | STATE=4 | POS=3 | INPUT=5+8)$ | STACK=[0, t, 2, *, 7, (, 4] | ACTION=Shift from state 4 to state 5
-OP=REDUCE | STATE=5 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=REDUCE | STATE=2 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, t, 2] | ACTION=Reduce by R3 (e -> t)
-OP=SHIFT | STATE=8 | POS=4 | INPUT=+8)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8] | ACTION=Shift from state 8 to state 6
-OP=SHIFT | STATE=6 | POS=5 | INPUT=8)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6] | ACTION=Shift from state 6 to state 5
-OP=REDUCE | STATE=5 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=REDUCE | STATE=9 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, +, 6, t, 9] | ACTION=Reduce by R2 (e -> e + t)
-OP=SHIFT | STATE=8 | POS=6 | INPUT=)$ | STACK=[0, t, 2, *, 7, (, 4, e, 8] | ACTION=Shift from state 8 to state 11
-OP=REDUCE | STATE=11 | POS=7 | INPUT=$ | STACK=[0, t, 2, *, 7, (, 4, e, 8, ), 11] | ACTION=Reduce by R6 (f -> ( e ))
-OP=REDUCE | STATE=10 | POS=7 | INPUT=$ | STACK=[0, t, 2, *, 7, f, 10] | ACTION=Reduce by R4 (t -> t * f)
-OP=REDUCE | STATE=2 | POS=7 | INPUT=$ | STACK=[0, t, 2] | ACTION=Reduce by R3 (e -> t)
-OP=ACCEPT | STATE=1 | POS=7 | INPUT=$ | STACK=[0, e, 1] | ACTION=Input accepted
+S | 0 | 0 | (4+3)*5$ | [0] | Shift from state 0 to state 4 | PUSH [(, 4]
+S | 4 | 1 | 4+3)*5$ | [0, (, 4] | Shift from state 4 to state 14 | PUSH [NUM, 14]
+R | 14 | 2 | +3)*5$ | [0, (, 4, NUM, 14] | Reduce by R7 (f -> NUM) | POP {[NUM, 14]} | PUSH [f, 13] | GOTO [4, f]=13
+R | 13 | 2 | +3)*5$ | [0, (, 4, f, 13] | Reduce by R5 (t -> f) | POP {[f, 13]} | PUSH [t, 12] | GOTO [4, t]=12
+R | 12 | 2 | +3)*5$ | [0, (, 4, t, 12] | Reduce by R3 (e -> t) | POP {[t, 12]} | PUSH [e, 10] | GOTO [4, e]=10
+S | 10 | 2 | +3)*5$ | [0, (, 4, e, 10] | Shift from state 10 to state 15 | PUSH [+, 15]
+S | 15 | 3 | 3)*5$ | [0, (, 4, e, 10, +, 15] | Shift from state 15 to state 14 | PUSH [NUM, 14]
+R | 14 | 4 | )*5$ | [0, (, 4, e, 10, +, 15, NUM, 14] | Reduce by R7 (f -> NUM) | POP {[NUM, 14]} | PUSH [f, 13] | GOTO [15, f]=13
+R | 13 | 4 | )*5$ | [0, (, 4, e, 10, +, 15, f, 13] | Reduce by R5 (t -> f) | POP {[f, 13]} | PUSH [t, 16] | GOTO [15, t]=16
+R | 16 | 4 | )*5$ | [0, (, 4, e, 10, +, 15, t, 16] | Reduce by R2 (e -> e + t) | POP {[t, 16], [+, 15], [e, 10]} | PUSH [e, 10] | GOTO [4, e]=10
+S | 10 | 4 | )*5$ | [0, (, 4, e, 10] | Shift from state 10 to state 11 | PUSH [), 11]
+R | 11 | 5 | *5$ | [0, (, 4, e, 10, ), 11] | Reduce by R6 (f -> ( e )) | POP {[), 11], [e, 10], [(, 4]} | PUSH [f, 3] | GOTO [0, f]=3
+R | 3 | 5 | *5$ | [0, f, 3] | Reduce by R5 (t -> f) | POP {[f, 3]} | PUSH [t, 2] | GOTO [0, t]=2
+S | 2 | 5 | *5$ | [0, t, 2] | Shift from state 2 to state 8 | PUSH [*, 8]
+S | 8 | 6 | 5$ | [0, t, 2, *, 8] | Shift from state 8 to state 5 | PUSH [NUM, 5]
+R | 5 | 7 | $ | [0, t, 2, *, 8, NUM, 5] | Reduce by R7 (f -> NUM) | POP {[NUM, 5]} | PUSH [f, 9] | GOTO [8, f]=9
+R | 9 | 7 | $ | [0, t, 2, *, 8, f, 9] | Reduce by R4 (t -> t * f) | POP {[f, 9], [*, 8], [t, 2]} | PUSH [t, 2] | GOTO [0, t]=2
+R | 2 | 7 | $ | [0, t, 2] | Reduce by R3 (e -> t) | POP {[t, 2]} | PUSH [e, 1] | GOTO [0, e]=1
+A | 1 | 7 | $ | [0, e, 1] | Input accepted
 -------------------------------------
 
 Expression 2
-EXPR=1234567890
+EXPR=4*(5+8)
 -------------------------------------
-OP=SHIFT | STATE=0 | POS=0 | INPUT=1234567890$ | STACK=[0] | ACTION=Shift from state 0 to state 5
-OP=REDUCE | STATE=5 | POS=1 | INPUT=$ | STACK=[0, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=1 | INPUT=$ | STACK=[0, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=REDUCE | STATE=2 | POS=1 | INPUT=$ | STACK=[0, t, 2] | ACTION=Reduce by R3 (e -> t)
-OP=ACCEPT | STATE=1 | POS=1 | INPUT=$ | STACK=[0, e, 1] | ACTION=Input accepted
+S | 0 | 0 | 4*(5+8)$ | [0] | Shift from state 0 to state 5 | PUSH [NUM, 5]
+R | 5 | 1 | *(5+8)$ | [0, NUM, 5] | Reduce by R7 (f -> NUM) | POP {[NUM, 5]} | PUSH [f, 3] | GOTO [0, f]=3
+R | 3 | 1 | *(5+8)$ | [0, f, 3] | Reduce by R5 (t -> f) | POP {[f, 3]} | PUSH [t, 2] | GOTO [0, t]=2
+S | 2 | 1 | *(5+8)$ | [0, t, 2] | Shift from state 2 to state 8 | PUSH [*, 8]
+S | 8 | 2 | (5+8)$ | [0, t, 2, *, 8] | Shift from state 8 to state 4 | PUSH [(, 4]
+S | 4 | 3 | 5+8)$ | [0, t, 2, *, 8, (, 4] | Shift from state 4 to state 14 | PUSH [NUM, 14]
+R | 14 | 4 | +8)$ | [0, t, 2, *, 8, (, 4, NUM, 14] | Reduce by R7 (f -> NUM) | POP {[NUM, 14]} | PUSH [f, 13] | GOTO [4, f]=13
+R | 13 | 4 | +8)$ | [0, t, 2, *, 8, (, 4, f, 13] | Reduce by R5 (t -> f) | POP {[f, 13]} | PUSH [t, 12] | GOTO [4, t]=12
+R | 12 | 4 | +8)$ | [0, t, 2, *, 8, (, 4, t, 12] | Reduce by R3 (e -> t) | POP {[t, 12]} | PUSH [e, 10] | GOTO [4, e]=10
+S | 10 | 4 | +8)$ | [0, t, 2, *, 8, (, 4, e, 10] | Shift from state 10 to state 15 | PUSH [+, 15]
+S | 15 | 5 | 8)$ | [0, t, 2, *, 8, (, 4, e, 10, +, 15] | Shift from state 15 to state 14 | PUSH [NUM, 14]
+R | 14 | 6 | )$ | [0, t, 2, *, 8, (, 4, e, 10, +, 15, NUM, 14] | Reduce by R7 (f -> NUM) | POP {[NUM, 14]} | PUSH [f, 13] | GOTO [15, f]=13
+R | 13 | 6 | )$ | [0, t, 2, *, 8, (, 4, e, 10, +, 15, f, 13] | Reduce by R5 (t -> f) | POP {[f, 13]} | PUSH [t, 16] | GOTO [15, t]=16
+R | 16 | 6 | )$ | [0, t, 2, *, 8, (, 4, e, 10, +, 15, t, 16] | Reduce by R2 (e -> e + t) | POP {[t, 16], [+, 15], [e, 10]} | PUSH [e, 10] | GOTO [4, e]=10
+S | 10 | 6 | )$ | [0, t, 2, *, 8, (, 4, e, 10] | Shift from state 10 to state 11 | PUSH [), 11]
+R | 11 | 7 | $ | [0, t, 2, *, 8, (, 4, e, 10, ), 11] | Reduce by R6 (f -> ( e )) | POP {[), 11], [e, 10], [(, 4]} | PUSH [f, 9] | GOTO [8, f]=9
+R | 9 | 7 | $ | [0, t, 2, *, 8, f, 9] | Reduce by R4 (t -> t * f) | POP {[f, 9], [*, 8], [t, 2]} | PUSH [t, 2] | GOTO [0, t]=2
+R | 2 | 7 | $ | [0, t, 2] | Reduce by R3 (e -> t) | POP {[t, 2]} | PUSH [e, 1] | GOTO [0, e]=1
+A | 1 | 7 | $ | [0, e, 1] | Input accepted
 -------------------------------------
 
 Expression 3
 EXPR=(7+3
 -------------------------------------
-OP=SHIFT | STATE=0 | POS=0 | INPUT=(7+3$ | STACK=[0] | ACTION=Shift from state 0 to state 4
-OP=SHIFT | STATE=4 | POS=1 | INPUT=7+3$ | STACK=[0, (, 4] | ACTION=Shift from state 4 to state 5
-OP=REDUCE | STATE=5 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=REDUCE | STATE=2 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, t, 2] | ACTION=Reduce by R3 (e -> t)
-OP=SHIFT | STATE=8 | POS=2 | INPUT=+3$ | STACK=[0, (, 4, e, 8] | ACTION=Shift from state 8 to state 6
-OP=SHIFT | STATE=6 | POS=3 | INPUT=3$ | STACK=[0, (, 4, e, 8, +, 6] | ACTION=Shift from state 6 to state 5
-OP=REDUCE | STATE=5 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, NUM, 5] | ACTION=Reduce by R7 (f -> NUM)
-OP=REDUCE | STATE=3 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, f, 3] | ACTION=Reduce by R5 (t -> f)
-OP=REDUCE | STATE=9 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8, +, 6, t, 9] | ACTION=Reduce by R2 (e -> e + t)
-OP=ERROR | STATE=8 | POS=4 | INPUT=$ | STACK=[0, (, 4, e, 8] | ACTION=No action for state=8 lookahead=$
+S | 0 | 0 | (7+3$ | [0] | Shift from state 0 to state 4 | PUSH [(, 4]
+S | 4 | 1 | 7+3$ | [0, (, 4] | Shift from state 4 to state 14 | PUSH [NUM, 14]
+R | 14 | 2 | +3$ | [0, (, 4, NUM, 14] | Reduce by R7 (f -> NUM) | POP {[NUM, 14]} | PUSH [f, 13] | GOTO [4, f]=13
+R | 13 | 2 | +3$ | [0, (, 4, f, 13] | Reduce by R5 (t -> f) | POP {[f, 13]} | PUSH [t, 12] | GOTO [4, t]=12
+R | 12 | 2 | +3$ | [0, (, 4, t, 12] | Reduce by R3 (e -> t) | POP {[t, 12]} | PUSH [e, 10] | GOTO [4, e]=10
+S | 10 | 2 | +3$ | [0, (, 4, e, 10] | Shift from state 10 to state 15 | PUSH [+, 15]
+S | 15 | 3 | 3$ | [0, (, 4, e, 10, +, 15] | Shift from state 15 to state 14 | PUSH [NUM, 14]
+E | 14 | 4 | $ | [0, (, 4, e, 10, +, 15, NUM, 14] | No action for state=14 lookahead=$
 -------------------------------------
 
 Expression 4
 EXPR=compilers+6
 -------------------------------------
-OP=ERROR | STATE=0 | POS=0 | INPUT=compilers+6$ | STACK=[0] | ACTION=No action for state=0 lookahead=INVALID
+E | 0 | 0 | compilers+6$ | [0] | No action for state=0 lookahead=INVALID
 -------------------------------------
 
