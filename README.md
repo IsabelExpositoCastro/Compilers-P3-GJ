@@ -21,6 +21,12 @@ GitHub-Repo: ([Compilers_P3_GJ](https://github.com/IsabelExpositoCastro/Compiler
 
 The project skeleton with all folders and files is the following one:
 ```
+/data
+│   tokens_file_p3dbg.txt
+│   language.txt
+│   tokens_file.cscn
+│   parser.exe
+│
 /src
 │   CMakeLists.txt
 │   main.c
@@ -128,6 +134,12 @@ Example:
 
 `R | 5 | 2 | +3)*5$ | [0, (, 4, NUM, 5] | Reduce by R7 (f -> NUM) | POP {[NUM, 5]} | PUSH [f, 3] | GOTO [4, f]=3`
 
+---
+### Examples:
+**In 📁/data folder, you can find both tokens_file.cscn & language.txt. Also, there is the executable with the resulting outputFile (tokens_file_p3dbg.txt)**
+
+
+
 ## 4) Language specification format
 
 A language file must include these sections:
@@ -190,30 +202,40 @@ Note: the current `load_grammar_from_file` implementation is tolerant and can st
 - `src/Parser_Module`: shift/reduce execution engine
 - `src/main.c`: end-to-end orchestration
 
-## 7) Quick run examples
+## 7) Usage Instructions
+In order to execute successfully the P3-Parser practice, using the terminal, it is mandatory to access to /data folder and execute the following command:
 
-From `build/`:
+```
+./parser.exe language.txt tokens_file.cscn
+```
 
-- Main language:
-  - `./parser.exe ../data/language.txt ../data/input_test.cscn`
-- Complete language file:
-  - `./parser.exe ../data/language_complete.txt ../data/input_test.cscn`
-- Alternate language:
-  - `./parser.exe ../data/language2.txt ../data/input_lang2_valid.cscn`
+## 8) Requirements
+As a team, we have mostly achieved the complete practice goals. However, there are some requirements that are missing:
+- Functions Display 
+- Code Documentation
+- Team work distribution specification
 
-## 8) Handout-oriented checklist (implementation status)
 
-- General S/R engine: **Implemented**
-- Grammar as data structure: **Implemented**
-- Automaton tables as data (file-based): **Implemented**
-- 2-argument usage (language + input): **Implemented**
-- `.cscn` token input loading: **Implemented**
-- Debug output per parser step: **Implemented**
-- Output naming `_p3dbg.txt`: **Implemented**
-- Multi-expression input file support: **Implemented**
-- Extra test/integration coverage: **Partially implemented**
+## 9) Submission Status
 
-## 9) Notes
+| Task | Status |
+|---|---|
+| Automata for the Language 1 | **Done** |
+| Automata for the Language 2 | **Done** |
+| Definition of the input language | **Done** |
+| Implement Language Data Struct | **Done** |
+| Decide Token Struct | **Done** |
+| Implement Token Struct | **Done** |
+| Stack Data Struct | **Done** |
+| Implement Stack Data Struct | **Done** |
+| Output format | **Done** |
+| Initial program design | **Done** |
+| Automata module | **Done** |
+| Language loader module | **Done** |
+| Token module | **Done** |
+| Input handler module | **Done** |
+| Token Reader module | **Done** |
+| Scanner (parser) module | **Done** |
+| Stack Handler module | **Done** |
+| Definition of the input file | **Done** |
 
-- The parser currently reports expression-level rejections in debug output while keeping process completion successful when execution itself is correct.
-- For grading/demo, include both valid and invalid expressions to showcase ACCEPT and ERROR traces.
