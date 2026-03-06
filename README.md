@@ -5,12 +5,14 @@ This document is an updated P3 guide for the current implementation.
 
 
 ## 👥 **Group Members**
-- **Alex Martínez**     — Team Leader  (TM1)
-- **Adrià Coll**        — Team Leader  (TM2)
-- **Isabel Expósito**   — Team Leader  (TM3)
-- **Didac Raya**        — Team Leader  (TM4)
-- **Margarita Crespo**  — Team Leader  (TM5)
-- **Valentyn Korol**    — Team Leader  (TM6)
+| Member | NIA |  |
+|---|---:|---|
+| Alex Martínez | 253823 | Team Leader (TM1) |
+| Adrià Coll | 253640 | Team Leader (TM2) |
+| Isabel Expósito | 268790 | Team Leader (TM3) |
+| Didac Raya | 242597 | Team Leader (TM4) |
+| Margarita Crespo | 268352 | Team Leader (TM5) |
+| Valentyn Korol | 253887 | Team Leader (TM6) |
 
 
 GitHub-Repo: ([Compilers_P3_GJ](https://github.com/IsabelExpositoCastro/Compilers-P3-GJ.git))
